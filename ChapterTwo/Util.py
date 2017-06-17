@@ -2,6 +2,7 @@
 # -*- coding: utf-8 -*-
 import re
 from calendar import month_abbr
+import unicodedata
 
 
 def change_date(m):
@@ -38,5 +39,42 @@ def example_2_4():
     text_new = detepat.sub(lambda m: '{} {} {}'.format(m.group(3), month_abbr[int(m.group(1))], m.group(2)), text)
     print text_new
 
+
+def exampie_2_9():
+    """
+    将Unicode文本统一表示为规范形式
+    只讲了一点点，深入需要参考更多(代码有错误，没看懂)
+    :return: 
+    """
+    s1 = 'Spicy Jalapa\u00f1o'
+    s2 = 'Spicy Jalapa\u0303o'
+    # s1 = s1.decode('utf-8')
+    # s2 = s2.decode('utf-8')
+    print s1
+    print '进行规范化之前 s1 = s2 %s' % (s1 == s2)
+    t1 = unicodedata.normalize('NFC', s1)
+    t2 = unicodedata.normalize('NFC', s2)
+    print '规范化处理之后 s1 = s2 %s' % (s1 == s2)
+
+
+def example_2_13():
+    """
+    对齐文本字符串
+    :return: 
+    """
+    text = 'Hello World'
+    print text.ljust(20)
+    print text.rjust(20)
+    print text.center(20, '*')
+    # 都可以使用format()来代替，其功能更强大
+    # format()需要进一步深入了解，python在线手册
+    print format(text, '=>20')
+    print format(text, '<20')
+    print format(text, '*^20')
+    print '{:>10s} {:>10s}'.format('Hello', 'World')
+
+
 if __name__ == '__main__':
-    example_2_4()
+    # example_2_4()
+    # exampie_2_9()
+    example_2_13()
