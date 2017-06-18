@@ -3,7 +3,8 @@
 import re
 from calendar import month_abbr
 import unicodedata
-
+import sys
+from collections import namedtuple
 
 def change_date(m):
     mon_str = month_abbr[int(m.group(1))]
@@ -50,11 +51,11 @@ def exampie_2_9():
     s2 = 'Spicy Jalapa\u0303o'
     # s1 = s1.decode('utf-8')
     # s2 = s2.decode('utf-8')
-    print s1
-    print '进行规范化之前 s1 = s2 %s' % (s1 == s2)
+    print(s1)
+    print('进行规范化之前 s1 = s2 %s' % (s1 == s2))
     t1 = unicodedata.normalize('NFC', s1)
     t2 = unicodedata.normalize('NFC', s2)
-    print '规范化处理之后 s1 = s2 %s' % (s1 == s2)
+    print('规范化处理之后 s1 = s2 %s' % (s1 == s2))
 
 
 def example_2_13():
@@ -63,18 +64,62 @@ def example_2_13():
     :return: 
     """
     text = 'Hello World'
-    print text.ljust(20)
-    print text.rjust(20)
-    print text.center(20, '*')
+    print(text.ljust(20))
+    print(text.rjust(20))
+    print(text.center(20, '*'))
     # 都可以使用format()来代替，其功能更强大
     # format()需要进一步深入了解，python在线手册
-    print format(text, '=>20')
-    print format(text, '<20')
-    print format(text, '*^20')
-    print '{:>10s} {:>10s}'.format('Hello', 'World')
+    print(format(text, '=>20'))
+    print(format(text, '<20'))
+    print(format(text, '*^20'))
+    print('{:>10s} {:>10s}'.format('Hello', 'World'))
 
+
+class safesub(dict):
+    def __missing__(self, key):
+        return '{'+ key +'}'
+
+
+def sub(text):
+    return text.format(**safesub(sys._getframe(1).f_locals))
+
+
+def example_2_15():
+    """
+    使用局部变量来实现字符串的插值
+    :return: 
+    """
+    name = 'jj'
+    n = 99
+    s = '{name} has {n} messages'
+    print(sub(s))
+
+
+def generate_tokens(pat, text):
+    Token = namedtuple('Token', ['type', 'value']) # 第一章中的对列表元素命名
+    scanner = pat.scanner(text) # 使用scanner()模式对象来进行操作
+    for m in iter(scanner.match, None): # scanner.match()扫面匹配的串，iter根据方法产生迭代器（必须为迭代方法）
+        yield Token(m.lastgroup, m.group())
+
+
+def example_2_18():
+    """
+    简单分词处理
+    :return: 
+    """
+    name = r'(?P<NAME>[a-zA-Z_][a-zA-Z_0-9]*)'
+    num = r'(?P<NUM>\d+)'
+    plus = r'(?P<PLUS>\+)'
+    time = r'(?P<TIMES>\*)'
+    eq = r'(?P<EQ>=)'
+    ws = r'(?P<WS>\s+)'
+    master_pat = re.compile('|'.join([name, num, plus, time, eq, ws])) # 还可以这样，就是一个满足的正则表达式字符串
+    for tok in generate_tokens(master_pat, 'foo =12'):
+        print tok
 
 if __name__ == '__main__':
     # example_2_4()
     # exampie_2_9()
-    example_2_13()
+    # example_2_13()
+    # example_2_15()
+    example_2_18()
